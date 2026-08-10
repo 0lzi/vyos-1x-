@@ -143,10 +143,17 @@ def certbot_request(name: str, config: dict, dry_run: bool=True) -> None:
            '--rsa-key-size', str(config['rsa_key_size'])]
     for domain in config['domain_name']:
         tmp += ['--domains', domain]
+    # For each domain get the EAB config and pass the --eab-kid and --eab-hmac argument through
+    # to certbot
+        if 'eab_kid' in config:
+            tmp += ['--eab-kid', config['eab_kid'],
+                    '--eab-hmac', config['eab_hmac'],
+                    ]
 
     listen_address = None
     if 'listen_address' in config:
         listen_address = config['listen_address']
+
 
     # When ACME is used behind a reverse proxy, we always bind to localhost
     # whatever the CLI listen-address is configured for.
@@ -436,6 +443,16 @@ def verify(pki):
                     if boot_configuration_complete() and not check_port_availability(listen_address, 80):
                         raise ConfigError('Port 80 is already in use and not available '\
                                           f'to provide ACME challenge for "{name}"!')
+
+                # Check to see if eab_kid and eab_hmac are both configured, these are both required
+                # for ACME EAB
+                if 'eab_kid' in cert_conf['acme'] and 'eab_hmac' not in cert_conf['acme']:
+                    raise ConfigError('EAB HMAC key is required when EAB Key ID is Configured '\
+                                      f'for certificate "{name}"!')
+
+                if 'eab_hmac' in cert_conf['acme'] and 'eab_kid' not in cert_conf['acme']:
+                    raise ConfigError('EAB Key ID is required when EAB HMCA is Configured '\
+                                      f'for certificate "{name}"!')
 
                 # Only run the ACME command if something on this entity changed,
                 # as this is time intensive

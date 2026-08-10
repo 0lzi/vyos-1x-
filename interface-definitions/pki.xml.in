@@ -80,6 +80,24 @@
                   </constraint>
                 </properties>
               </leafNode>
+              <leafNode name="eab-kid">
+                <properties>
+                  <help>ACME External Account Binding (EAB) Key ID</help>
+                  <constraint>
+                    <regex>[-a-zA-Z0-9]+</regex>
+                  </constraint>
+                  <constraintErrorMessage>EAB Key ID name must be alphanumeric and can contain hyphens</constraintErrorMessage>
+                </properties>
+              </leafNode>
+              <leafNode name="eab-hmac">
+                <properties>
+                  <help>ACME External Account Binding (EAB) HMAC</help>
+                  <constraint>
+                    <regex>^[A-Za-z0-9_-]+$</regex>
+                  </constraint>
+                  <constraintErrorMessage>HMAC name must be base64url encoded</constraintErrorMessage>
+                </properties>
+              </leafNode>
               #include <include/listen-address-single.xml.i>
               <leafNode name="rsa-key-size">
                 <properties>
